@@ -56,7 +56,7 @@ type Player struct {
 	errorCallback     func(p *Player, err error)
 	afterPlayCallback func(p *Player)
 
-	currentTrack *TrackInfo
+	CurrentTrack *TrackInfo
 }
 
 func NewPlayer(
@@ -74,8 +74,6 @@ func NewPlayer(
 
 		errorCallback:     errorCallback,
 		afterPlayCallback: afterPlayCallback,
-
-		currentTrack: nil,
 	}
 }
 
@@ -137,7 +135,7 @@ func buildStreams(data []*extractors.Data) []*TrackInfo {
 }
 
 func (p *Player) play(track *TrackInfo) {
-	p.currentTrack = track
+	p.CurrentTrack = track
 
 	fmt.Println(track.URL)
 	defer p.afterPlayCallback(p)
@@ -206,7 +204,7 @@ func (p *Player) GetPosition() int {
 
 func (p *Player) Play() {
 	p.isPlaying = true
-	p.play(p.currentTrack)
+	p.play(p.CurrentTrack)
 }
 
 func (p *Player) Pause() {
@@ -218,14 +216,14 @@ func (p *Player) Stop() {
 }
 
 func (p *Player) Next() *TrackInfo {
-	p.currentTrack = p.queue.Dequeue()
-	if p.currentTrack == nil {
+	p.CurrentTrack = p.queue.Dequeue()
+	if p.CurrentTrack == nil {
 		p.isPlaying = false
 		return nil
 	}
 
 	p.Play()
-	return p.currentTrack
+	return p.CurrentTrack
 }
 
 func (p *Player) SetErrorCallback(callback func(p *Player, err error)) {
