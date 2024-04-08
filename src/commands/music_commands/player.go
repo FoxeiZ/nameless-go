@@ -160,12 +160,12 @@ func (p *Player) play(track *TrackInfo) {
 
 func (p *Player) SearchTracks(query string) ([]*TrackInfo, error) {
 	data, err := extractors.Extract(query, extractors.Options{
-		Playlist: true,
+		Playlist:     true,
+		ThreadNumber: 4,
 	})
 	if err != nil {
 		data, err = extractors.Extract(query, extractors.Options{
-			Playlist:     false,
-			ThreadNumber: 4,
+			Playlist: false,
 		})
 	}
 	if err != nil {
