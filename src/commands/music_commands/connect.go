@@ -51,15 +51,16 @@ func Connect(session *discordgo.Session, interaction *discordgo.InteractionCreat
 		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
 	})
 
+	var vc *discordgo.VoiceConnection
 	if channel, ok := options["channel"]; ok {
-		_, err = session.ChannelVoiceJoin(
+		vc, err = session.ChannelVoiceJoin(
 			interaction.GuildID,
 			channel.ChannelValue(nil).ID,
 			false,
 			true,
 		)
 	} else {
-		_, err = joinUserVoiceChannel(session, interaction.Member.User.ID)
+		vc, err = joinUserVoiceChannel(session, interaction.Member.User.ID)
 	}
 
 	var content string
@@ -67,6 +68,18 @@ func Connect(session *discordgo.Session, interaction *discordgo.InteractionCreat
 		content = "Could not connect to voice channel"
 	} else {
 		content = "Connected to voice channel"
+		AddPlayer(interaction.GuildID, NewPlayer(
+			interaction.ChannelID,
+			vc,
+			func(p *Player, err error) {
+				if err != nil {
+					session.ChannelMessageSend(p.channelID, err.Error())
+				}
+			},
+			func(p *Player) {
+				p.Next()
+			},
+		))
 	}
 
 	session.FollowupMessageCreate(interaction.Interaction, true, &discordgo.WebhookParams{

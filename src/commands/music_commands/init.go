@@ -10,4 +10,7 @@ func Add(commandHandlers *types.CommandType) {
 
 	commandHandlers.Handlers["disconnect"] = Disconnect
 	commandHandlers.Commands = append(commandHandlers.Commands, DisconnectCommand)
+
+	commandHandlers.Handlers["play"] = Play
+	commandHandlers.Commands = append(commandHandlers.Commands, PlayCommand)
 }
