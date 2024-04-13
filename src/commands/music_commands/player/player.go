@@ -1,8 +1,9 @@
-package music_commands
+package player
 
 import (
-	"fmt"
 	"io"
+	"sync"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/foxeiz/namelessgo/src/extractors"
@@ -16,13 +17,15 @@ type Player struct {
 	voiceConnection *discordgo.VoiceConnection
 
 	queue     *Queue
+	lock      *sync.Mutex
 	position  int
 	isPlaying bool
 
 	errorCallback     func(p *Player, err error)
 	afterPlayCallback func(p *Player)
 
-	CurrentTrack *extractors.TrackInfo
+	CurrentTrack            *extractors.TrackInfo
+	CurrentStreamingSession *dca.StreamingSession
 }
 
 func NewPlayer(
@@ -34,19 +37,29 @@ func NewPlayer(
 	return &Player{
 		channelID:       channelID,
 		voiceConnection: voiceConnection,
-		queue:           NewQueue(),
-		position:        0,
-		isPlaying:       false,
+
+		lock:      &sync.Mutex{},
+		queue:     NewQueue(),
+		position:  0,
+		isPlaying: false,
 
 		errorCallback:     errorCallback,
 		afterPlayCallback: afterPlayCallback,
 	}
 }
 
+func (p *Player) cleanup() {
+	p.lock.Lock()
+	defer p.lock.Unlock()
+
+	p.isPlaying = false
+	p.CurrentTrack = nil
+	p.CurrentStreamingSession = nil
+}
+
 func (p *Player) play(track *extractors.TrackInfo) {
 	p.CurrentTrack = track
 
-	fmt.Println(track.URL)
 	defer p.afterPlayCallback(p)
 
 	streamURL, err := track.GetStreamURL()
@@ -61,9 +74,11 @@ func (p *Player) play(track *extractors.TrackInfo) {
 		return
 	}
 	defer encodingSession.Cleanup()
+	defer p.cleanup()
 
 	done := make(chan error)
-	dca.NewStream(encodingSession, p.voiceConnection, done)
+	p.CurrentStreamingSession = dca.NewStream(encodingSession, p.voiceConnection, done)
+
 	err = <-done
 	if err != nil && err != io.EOF {
 		p.errorCallback(p, err)
@@ -103,28 +118,65 @@ func (p *Player) AddTrack(track *extractors.TrackInfo) {
 	}
 }
 
-func (p *Player) RemoveTrack(index int) {
+func (p *Player) RemoveTrack(index int) error {
+	p.lock.Lock()
+	defer p.lock.Unlock()
+
+	if index < 0 || index >= len(p.queue.TrackList) {
+		return errors.New("invalid index")
+	}
+
 	p.queue.Pop(index)
+
+	return nil
+}
+
+func (p *Player) GetChannelID() string {
+	return p.channelID
 }
 
 func (p *Player) GetTrack(index int) *extractors.TrackInfo {
+	p.lock.Lock()
+	defer p.lock.Unlock()
 	return p.queue.Peek(index)
 }
 
 func (p *Player) GetTrackList() []*extractors.TrackInfo {
+	p.lock.Lock()
+	defer p.lock.Unlock()
 	return p.queue.GetTrackList()
 }
 
-func (p *Player) GetPosition() int {
-	return p.position
+func (p *Player) GetPlaybackPosition() time.Duration {
+	if p.CurrentStreamingSession == nil {
+		return 0
+	}
+	return p.CurrentStreamingSession.PlaybackPosition()
 }
 
 func (p *Player) Play() {
+	p.lock.Lock()
+	defer p.lock.Unlock()
+
+	if p.CurrentStreamingSession != nil {
+		p.isPlaying = true
+		p.CurrentStreamingSession.SetPaused(false)
+		return
+	}
+
 	p.isPlaying = true
 	p.play(p.CurrentTrack)
 }
 
 func (p *Player) Pause() {
+	p.lock.Lock()
+	defer p.lock.Unlock()
+
+	if p.CurrentStreamingSession == nil {
+		return
+	}
+
+	p.CurrentStreamingSession.SetPaused(true)
 	p.isPlaying = false
 }
 

@@ -1,4 +1,4 @@
-package music_commands
+package player
 
 import (
 	"sync"

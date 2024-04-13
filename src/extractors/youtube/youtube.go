@@ -1,25 +1,3 @@
-// MIT License
-
-// Copyright 2018-present, iawia002
-
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-
 package youtube
 
 import (
@@ -29,7 +7,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"regexp"
+	"net/url"
+	"strings"
 
 	"github.com/foxeiz/namelessgo/src/extractors"
 )
@@ -48,28 +27,62 @@ func New() extractors.Extractor {
 	return &extractor{}
 }
 
-func extractId(url string) (*string, bool, error) {
-	reg, _ := regexp.Compile(`(?i)(.*?)(^|playlist|watch)(?:\?)(^|\/|v=|list=)([a-z0-9_-]+)(.*)?`)
-
-	match := reg.FindStringSubmatch(url)
-	if match == nil {
-		return nil, false, errors.New("invalid url")
+func extractId(query string) (*string, bool, error) {
+	urlParse, err := url.Parse(query)
+	if err != nil {
+		return nil, false, err
 	}
 
-	if match[2] == "playlist" {
-		if len(match[4]) == 34 {
-			return &match[4], true, nil
+	if urlParse.Host == "youtu.be" {
+		splitPath := strings.Split(urlParse.Path, "/")
+
+		if len(splitPath) == 2 {
+			return &splitPath[1], false, nil
 		}
 	}
 
-	if match[2] == "watch" {
-		if len(match[4]) == 11 {
-			return &match[4], false, nil
+	urlQuery := urlParse.Query()
+
+	if urlParse.Path == "/watch" {
+		v := urlQuery.Get("v")
+		if v != "" {
+			return &v, false, nil
+		}
+	}
+
+	if urlParse.Path == "/playlist" {
+		list := urlQuery.Get("list")
+		if list != "" {
+			return &list, true, nil
 		}
 	}
 
 	return nil, false, errors.New("malformed id")
+
 }
+
+// func extractId(url string) (*string, bool, error) {
+// 	reg, _ := regexp.Compile(`(?i)(.*?)(^|playlist|watch)(?:\?)(^|\/|v=|list=)([a-z0-9_-]+)(.*)?`)
+
+// 	match := reg.FindStringSubmatch(url)
+// 	if match == nil {
+// 		return nil, false, errors.New("invalid url")
+// 	}
+
+// 	if match[2] == "playlist" {
+// 		if len(match[4]) == 34 {
+// 			return &match[4], true, nil
+// 		}
+// 	}
+
+// 	if match[2] == "watch" {
+// 		if len(match[4]) == 11 {
+// 			return &match[4], false, nil
+// 		}
+// 	}
+
+// 	return nil, false, errors.New("malformed id")
+// }
 
 func doRequest(endpoint string, body []byte) (*http.Response, error) {
 	req, err := http.NewRequest("POST", fmt.Sprintf(BaseURL, endpoint), bytes.NewBuffer(body))
@@ -116,6 +129,7 @@ func player(videoId string) (*playerResponse, error) {
 func (e *extractor) Extract(url string, option extractors.Options) ([]*extractors.TrackInfo, error) {
 	ret := make([]*extractors.TrackInfo, 0)
 	youtubeId, isPlaylist, err := extractId(url)
+
 	if err != nil {
 		log.Fatal(err)
 		return nil, err

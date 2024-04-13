@@ -1,12 +1,14 @@
 package music_commands
 
-var playerMapper = make(map[string]*Player)
+import p "github.com/foxeiz/namelessgo/src/commands/music_commands/player"
 
-func GetPlayer(guildID string) *Player {
+var playerMapper = make(map[string]*p.Player)
+
+func GetPlayer(guildID string) *p.Player {
 	return playerMapper[guildID]
 }
 
-func AddPlayer(guildID string, player *Player) {
+func AddPlayer(guildID string, player *p.Player) {
 	playerMapper[guildID] = player
 }
 

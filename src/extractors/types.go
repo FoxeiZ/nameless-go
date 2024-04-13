@@ -1,7 +1,6 @@
 package extractors
 
 import (
-	"errors"
 	"time"
 )
 
@@ -33,6 +32,19 @@ type TrackInfo struct {
 	Err       error
 }
 
+func (t *TrackInfo) Update(newT *TrackInfo) {
+	t.Site = newT.Site
+	t.URL = newT.URL
+	t.Title = newT.Title
+	t.Artist = newT.Artist
+	t.Duration = newT.Duration
+	t.ThumbnailURL = newT.ThumbnailURL
+	t.StreamData = newT.StreamData
+	t.AuthorInfo = newT.AuthorInfo
+	t.Extractor = newT.Extractor
+	t.Err = newT.Err
+}
+
 func (t *TrackInfo) GetStreamURL() (string, error) {
 	if t.StreamData != nil {
 		if !(t.StreamData.Expires).Before(time.Now()) {
@@ -45,11 +57,8 @@ func (t *TrackInfo) GetStreamURL() (string, error) {
 		return "", err
 	}
 
-	if len(reExtract) > 0 {
-		return reExtract[0].URL, nil
-	}
-
-	return "", errors.New("no data returned")
+	t.Update(reExtract[0])
+	return t.URL, nil
 }
 
 type Options struct {

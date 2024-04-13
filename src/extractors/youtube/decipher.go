@@ -106,6 +106,27 @@ func decipherURL(videoID string, cipher string) (string, error) {
 	return uri.String(), nil
 }
 
+// see https://github.com/kkdai/youtube/pull/244
+func unThrottle(videoID string, urlString string) (string, error) {
+	config, err := getPlayerConfig(videoID)
+	if err != nil {
+		return "", err
+	}
+
+	uri, err := url.Parse(urlString)
+	if err != nil {
+		return "", err
+	}
+
+	query, err := decryptNParam(config, uri.Query())
+	if err != nil {
+		return "", err
+	}
+
+	uri.RawQuery = query.Encode()
+	return uri.String(), nil
+}
+
 func decryptNParam(config playerConfig, query url.Values) (url.Values, error) {
 	// decrypt n-parameter
 	nSig := query.Get("v")

@@ -21,9 +21,25 @@ func main() {
 	bot.Close()
 }
 
+//	func main() {
+//		extractors.Extract(
+//			"https://www.youtube.com/watch?v=B0dNXxLbh8s",
+//			extractors.Options{},
+//		)
+//	}
 // func main() {
-// 	extractors.Extract(
-// 		"https://www.youtube.com/watch?v=B0dNXxLbh8s",
-// 		extractors.Options{},
-// 	)
+// 	u, err := url.Parse("https://youtu.be/bGzGvY85kBU?si=yJV9iITO6iIPToob")
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// 	q := u.Query()
+// 	ep := u.EscapedPath()
+// 	splitPath := strings.Split(u.Path, "/")
+
+// 	fmt.Println(u.Host)
+
+// 	fmt.Println(q)
+// 	fmt.Println(ep)
+
+// 	fmt.Println(splitPath)
 // }

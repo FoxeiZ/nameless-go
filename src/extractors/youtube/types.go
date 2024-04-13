@@ -184,7 +184,13 @@ func (p *playerResponse) GetBestAudio() (*extractors.StreamData, error) {
 		}
 	}
 
-	decipURL, err := decipherURL(p.VideoDetails.VideoID, format.Cipher)
+	var urlStream string
+	var err error
+	if (format.Cipher) == "" {
+		urlStream, err = unThrottle(p.VideoDetails.VideoID, format.URL)
+	} else {
+		urlStream, err = decipherURL(p.VideoDetails.VideoID, format.Cipher)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -195,7 +201,7 @@ func (p *playerResponse) GetBestAudio() (*extractors.StreamData, error) {
 	}
 
 	return &extractors.StreamData{
-			URL:     decipURL,
+			URL:     urlStream,
 			Format:  format.Quality,
 			Expires: time.Now().Add(time.Duration(expires) * time.Second),
 		},

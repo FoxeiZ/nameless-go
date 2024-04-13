@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/foxeiz/namelessgo/src/commands/music_commands/player"
 	"github.com/foxeiz/namelessgo/src/types"
 )
 
@@ -68,15 +69,15 @@ func Connect(session *discordgo.Session, interaction *discordgo.InteractionCreat
 		content = "Could not connect to voice channel"
 	} else {
 		content = "Connected to voice channel"
-		AddPlayer(interaction.GuildID, NewPlayer(
+		AddPlayer(interaction.GuildID, player.NewPlayer(
 			interaction.ChannelID,
 			vc,
-			func(p *Player, err error) {
+			func(p *player.Player, err error) {
 				if err != nil {
-					session.ChannelMessageSend(p.channelID, err.Error())
+					session.ChannelMessageSend(p.GetChannelID(), err.Error())
 				}
 			},
-			func(p *Player) {
+			func(p *player.Player) {
 				p.Next()
 			},
 		))
