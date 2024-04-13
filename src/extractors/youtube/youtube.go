@@ -8,7 +8,9 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/foxeiz/namelessgo/src/extractors"
 )
@@ -148,12 +150,18 @@ func (e *extractor) Extract(url string, option extractors.Options) ([]*extractor
 			return nil, err
 		}
 
+		lengthSeconds, err := strconv.ParseInt(pl.VideoDetails.LengthSeconds, 10, 64)
+		if err != nil {
+			log.Fatal(err)
+			return nil, err
+		}
+
 		ret = append(ret, &extractors.TrackInfo{
 			Site:         "youtube",
 			URL:          url,
 			Title:        pl.VideoDetails.Title,
 			Artist:       pl.VideoDetails.Author,
-			Duration:     pl.VideoDetails.LengthSeconds,
+			Duration:     time.Duration(lengthSeconds) * time.Second,
 			ThumbnailURL: &pl.GetBestThumbnail().URL,
 			StreamData:   decip,
 			AuthorInfo: &extractors.AuthorInfo{

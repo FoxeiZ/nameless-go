@@ -23,7 +23,7 @@ type TrackInfo struct {
 	URL          string
 	Title        string
 	Artist       string
-	Duration     string
+	Duration     time.Duration
 	ThumbnailURL *string
 	StreamData   *StreamData
 	AuthorInfo   *AuthorInfo
@@ -47,7 +47,7 @@ func (t *TrackInfo) Update(newT *TrackInfo) {
 
 func (t *TrackInfo) GetStreamURL() (string, error) {
 	if t.StreamData != nil {
-		if !(t.StreamData.Expires).Before(time.Now()) {
+		if !t.StreamData.Expires.Before(time.Now()) {
 			return t.StreamData.URL, nil
 		}
 	}
