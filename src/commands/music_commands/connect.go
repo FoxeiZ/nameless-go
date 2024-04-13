@@ -57,6 +57,7 @@ func Connect(
 	})
 
 	var vc *discordgo.VoiceConnection
+
 	if channel, ok := options["channel"]; ok {
 		vc, err = session.ChannelVoiceJoin(
 			interaction.GuildID,
