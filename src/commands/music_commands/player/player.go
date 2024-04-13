@@ -57,6 +57,11 @@ func (p *Player) cleanup() {
 	p.CurrentStreamingSession = nil
 }
 
+func (p *Player) Cleanup() {
+	p.cleanup()
+	p.voiceConnection.Disconnect()
+}
+
 func (p *Player) play(track *extractors.TrackInfo) {
 	p.CurrentTrack = track
 
