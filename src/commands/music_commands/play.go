@@ -23,25 +23,23 @@ func Play(
 	interaction *discordgo.InteractionCreate,
 	options commands.CommandOptionsType,
 ) {
-	var query string
-
-	session.InteractionRespond(interaction.Interaction, &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
-	})
-
-	_, ok := session.VoiceConnections[interaction.GuildID]
-	if !ok {
-		session.FollowupMessageCreate(interaction.Interaction, true, &discordgo.WebhookParams{
-			Content: "Not connected to voice channel",
-		})
+	if session == nil || interaction == nil || options == nil {
 		return
 	}
 
-	if q, ok := options["query"]; ok {
-		query = q.StringValue()
+	query, ok := options["query"]
+	if !ok || query == nil {
+		return
 	}
 
-	trackList, err := GetPlayer(interaction.GuildID).SearchTracks(query)
+	CheckVoiceAndMaybeJoin(session, interaction, options, true)
+
+	player := GetPlayer(interaction.GuildID)
+	if player == nil {
+		return
+	}
+
+	trackList, err := player.SearchTracks(query.StringValue())
 	if err != nil {
 		session.FollowupMessageCreate(interaction.Interaction, true, &discordgo.WebhookParams{
 			Content: err.Error(),
@@ -56,17 +54,13 @@ func Play(
 		return
 	}
 
-	if len(trackList) > 1 {
-		for _, track := range trackList {
-			session.FollowupMessageCreate(interaction.Interaction, true, &discordgo.WebhookParams{
-				Content: track.Title,
-			})
-		}
-	} else {
+	for _, track := range trackList {
 		session.FollowupMessageCreate(interaction.Interaction, true, &discordgo.WebhookParams{
-			Content: trackList[0].Title,
+			Content: track.Title,
 		})
+	}
 
-		GetPlayer(interaction.GuildID).AddTrack(trackList[0])
+	if len(trackList) == 1 {
+		player.AddTrack(trackList[0])
 	}
 }

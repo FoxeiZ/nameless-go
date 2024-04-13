@@ -51,11 +51,7 @@ func Connect(
 	options commands.CommandOptionsType,
 ) {
 	var err error
-
-	session.InteractionRespond(interaction.Interaction, &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
-	})
-
+	var content string
 	var vc *discordgo.VoiceConnection
 
 	if channel, ok := options["channel"]; ok {
@@ -69,7 +65,6 @@ func Connect(
 		vc, err = joinUserVoiceChannel(session, interaction.Member.User.ID)
 	}
 
-	var content string
 	if err != nil {
 		content = "Could not connect to voice channel"
 	} else {
