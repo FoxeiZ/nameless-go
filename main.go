@@ -7,6 +7,7 @@ import (
 	"syscall"
 
 	bot "github.com/foxeiz/namelessgo/src"
+	_ "github.com/foxeiz/namelessgo/src/extractors/youtube"
 )
 
 func main() {
@@ -19,3 +20,10 @@ func main() {
 	log.Println("Shutting down...")
 	bot.Close()
 }
+
+// func main() {
+// 	extractors.Extract(
+// 		"https://www.youtube.com/watch?v=B0dNXxLbh8s",
+// 		extractors.Options{},
+// 	)
+// }

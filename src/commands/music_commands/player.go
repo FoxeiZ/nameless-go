@@ -22,7 +22,7 @@ type Player struct {
 	errorCallback     func(p *Player, err error)
 	afterPlayCallback func(p *Player)
 
-	CurrentTrack *TrackInfo
+	CurrentTrack *extractors.TrackInfo
 }
 
 func NewPlayer(
@@ -43,13 +43,19 @@ func NewPlayer(
 	}
 }
 
-func (p *Player) play(track *TrackInfo) {
+func (p *Player) play(track *extractors.TrackInfo) {
 	p.CurrentTrack = track
 
 	fmt.Println(track.URL)
 	defer p.afterPlayCallback(p)
 
-	encodingSession, err := dca.EncodeFile(track.URL, dca.StdEncodeOptions)
+	streamURL, err := track.GetStreamURL()
+	if err != nil {
+		p.errorCallback(p, err)
+		return
+	}
+
+	encodingSession, err := dca.EncodeFile(streamURL, dca.StdEncodeOptions)
 	if err != nil {
 		p.errorCallback(p, err)
 		return
@@ -84,7 +90,7 @@ func (p *Player) SearchTracks(query string) ([]*extractors.TrackInfo, error) {
 	return data, nil
 }
 
-func (p *Player) AddTrack(track *TrackInfo) {
+func (p *Player) AddTrack(track *extractors.TrackInfo) {
 	playAfter := false
 	if !p.isPlaying && len(p.queue.TrackList) == 0 {
 		playAfter = true
@@ -101,11 +107,11 @@ func (p *Player) RemoveTrack(index int) {
 	p.queue.Pop(index)
 }
 
-func (p *Player) GetTrack(index int) *TrackInfo {
+func (p *Player) GetTrack(index int) *extractors.TrackInfo {
 	return p.queue.Peek(index)
 }
 
-func (p *Player) GetTrackList() []*TrackInfo {
+func (p *Player) GetTrackList() []*extractors.TrackInfo {
 	return p.queue.GetTrackList()
 }
 
@@ -126,7 +132,7 @@ func (p *Player) Stop() {
 	p.isPlaying = false
 }
 
-func (p *Player) Next() *TrackInfo {
+func (p *Player) Next() *extractors.TrackInfo {
 	p.CurrentTrack = p.queue.Dequeue()
 	if p.CurrentTrack == nil {
 		p.isPlaying = false

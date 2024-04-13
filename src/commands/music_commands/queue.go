@@ -2,24 +2,26 @@ package music_commands
 
 import (
 	"sync"
+
+	"github.com/foxeiz/namelessgo/src/extractors"
 )
 
 type Queue struct {
 	Mutex     *sync.Mutex
-	TrackList []*TrackInfo
+	TrackList []*extractors.TrackInfo
 }
 
 func NewQueue() *Queue {
-	return &Queue{&sync.Mutex{}, make([]*TrackInfo, 0)}
+	return &Queue{&sync.Mutex{}, make([]*extractors.TrackInfo, 0)}
 }
 
-func (q *Queue) Enqueue(t *TrackInfo) {
+func (q *Queue) Enqueue(t *extractors.TrackInfo) {
 	q.Mutex.Lock()
 	defer q.Mutex.Unlock()
 	q.TrackList = append(q.TrackList, t)
 }
 
-func (q *Queue) Dequeue() *TrackInfo {
+func (q *Queue) Dequeue() *extractors.TrackInfo {
 	q.Mutex.Lock()
 	defer q.Mutex.Unlock()
 	if len(q.TrackList) > 0 {
@@ -30,7 +32,7 @@ func (q *Queue) Dequeue() *TrackInfo {
 	return nil
 }
 
-func (q *Queue) Pop(x int) *TrackInfo {
+func (q *Queue) Pop(x int) *extractors.TrackInfo {
 	q.Mutex.Lock()
 	defer q.Mutex.Unlock()
 	if len(q.TrackList) > 0 {
@@ -41,7 +43,7 @@ func (q *Queue) Pop(x int) *TrackInfo {
 	return nil
 }
 
-func (q *Queue) Peek(x int) *TrackInfo {
+func (q *Queue) Peek(x int) *extractors.TrackInfo {
 	q.Mutex.Lock()
 	defer q.Mutex.Unlock()
 	if len(q.TrackList) > 0 && x < len(q.TrackList) {
@@ -52,13 +54,13 @@ func (q *Queue) Peek(x int) *TrackInfo {
 	return nil
 }
 
-func (q *Queue) GetTrackList() []*TrackInfo {
+func (q *Queue) GetTrackList() []*extractors.TrackInfo {
 	q.Mutex.Lock()
 	defer q.Mutex.Unlock()
 	return q.TrackList
 }
 
-func (q *Queue) GetTrackListSlice(x int, y int) []*TrackInfo {
+func (q *Queue) GetTrackListSlice(x int, y int) []*extractors.TrackInfo {
 	q.Mutex.Lock()
 	defer q.Mutex.Unlock()
 
@@ -88,5 +90,5 @@ func (q *Queue) IsEmpty() bool {
 func (q *Queue) Clear() {
 	q.Mutex.Lock()
 	defer q.Mutex.Unlock()
-	q.TrackList = make([]*TrackInfo, 0)
+	q.TrackList = make([]*extractors.TrackInfo, 0)
 }
