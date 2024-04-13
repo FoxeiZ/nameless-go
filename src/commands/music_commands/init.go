@@ -1,10 +1,10 @@
 package music_commands
 
 import (
-	"github.com/foxeiz/namelessgo/src/types"
+	"github.com/foxeiz/namelessgo/src/commands"
 )
 
-func Add(commandHandlers *types.CommandType) {
+func Add(commandHandlers *commands.CommandType) {
 	commandHandlers.Handlers["connect"] = Connect
 	commandHandlers.Commands = append(commandHandlers.Commands, ConnectCommand)
 

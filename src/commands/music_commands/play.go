@@ -2,7 +2,7 @@ package music_commands
 
 import (
 	"github.com/bwmarrin/discordgo"
-	"github.com/foxeiz/namelessgo/src/types"
+	"github.com/foxeiz/namelessgo/src/commands"
 )
 
 var PlayCommand = &discordgo.ApplicationCommand{
@@ -18,7 +18,11 @@ var PlayCommand = &discordgo.ApplicationCommand{
 	},
 }
 
-func Play(session *discordgo.Session, interaction *discordgo.InteractionCreate, options types.CommandOptionsType) {
+func Play(
+	session *discordgo.Session,
+	interaction *discordgo.InteractionCreate,
+	options commands.CommandOptionsType,
+) {
 	var query string
 
 	session.InteractionRespond(interaction.Interaction, &discordgo.InteractionResponse{

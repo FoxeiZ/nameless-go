@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/foxeiz/namelessgo/src/types"
+	"github.com/foxeiz/namelessgo/src/commands"
 )
 
 var PingCommand = &discordgo.ApplicationCommand{
@@ -12,7 +12,7 @@ var PingCommand = &discordgo.ApplicationCommand{
 	Description: "Pong?",
 }
 
-func Ping(session *discordgo.Session, interaction *discordgo.InteractionCreate, _ types.CommandOptionsType) {
+func Ping(session *discordgo.Session, interaction *discordgo.InteractionCreate, _ commands.CommandOptionsType) {
 	session.InteractionRespond(interaction.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{

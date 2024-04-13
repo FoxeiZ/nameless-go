@@ -72,7 +72,7 @@ type playerBody struct {
 	ContentCheck bool     `json:"contentCheckOk"`
 }
 
-// ----- copy from https://github.com/kkdai/youtube/blob/master/response_data.go
+// ----- the below is copied from https://github.com/kkdai/youtube/blob/master/response_data.go
 
 type Thumbnail struct {
 	URL    string
@@ -155,7 +155,7 @@ type playerResponse struct { // trim down part that we need
 	} `json:"indexRange"`
 }
 
-// ----- end of unmodified code
+// ----- end of copied code
 
 func (p *playerResponse) GetBestThumbnail() *Thumbnail {
 	var maxHeight uint = 0

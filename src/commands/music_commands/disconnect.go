@@ -2,7 +2,7 @@ package music_commands
 
 import (
 	"github.com/bwmarrin/discordgo"
-	"github.com/foxeiz/namelessgo/src/types"
+	"github.com/foxeiz/namelessgo/src/commands"
 )
 
 var DisconnectCommand = &discordgo.ApplicationCommand{
@@ -10,7 +10,11 @@ var DisconnectCommand = &discordgo.ApplicationCommand{
 	Description: "Disconnect from voice channel",
 }
 
-func Disconnect(session *discordgo.Session, interaction *discordgo.InteractionCreate, _ types.CommandOptionsType) {
+func Disconnect(
+	session *discordgo.Session,
+	interaction *discordgo.InteractionCreate,
+	_ commands.CommandOptionsType,
+) {
 	session.InteractionRespond(interaction.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
 	})

@@ -4,8 +4,8 @@ import (
 	"errors"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/foxeiz/namelessgo/src/commands"
 	"github.com/foxeiz/namelessgo/src/commands/music_commands/player"
-	"github.com/foxeiz/namelessgo/src/types"
 )
 
 var ConnectCommand = &discordgo.ApplicationCommand{
@@ -45,7 +45,11 @@ func joinUserVoiceChannel(session *discordgo.Session, userId string) (*discordgo
 	return session.ChannelVoiceJoin(vs.GuildID, vs.ChannelID, false, true)
 }
 
-func Connect(session *discordgo.Session, interaction *discordgo.InteractionCreate, options types.CommandOptionsType) {
+func Connect(
+	session *discordgo.Session,
+	interaction *discordgo.InteractionCreate,
+	options commands.CommandOptionsType,
+) {
 	var err error
 
 	session.InteractionRespond(interaction.Interaction, &discordgo.InteractionResponse{

@@ -4,23 +4,23 @@ import (
 	"log"
 
 	"github.com/foxeiz/namelessgo/config"
+	"github.com/foxeiz/namelessgo/src/commands"
 	"github.com/foxeiz/namelessgo/src/commands/general_commands"
 	"github.com/foxeiz/namelessgo/src/commands/music_commands"
-	"github.com/foxeiz/namelessgo/src/types"
 
 	"github.com/bwmarrin/discordgo"
 )
 
 var botSession *discordgo.Session
 var botConfig *config.Config
-var botCommand types.CommandType
+var botCommand commands.CommandType
 
 func init() {
-	botCommand = types.CommandType{
+	botCommand = commands.CommandType{
 		Handlers: make(map[string]func(
 			session *discordgo.Session,
 			interaction *discordgo.InteractionCreate,
-			options types.CommandOptionsType,
+			options commands.CommandOptionsType,
 		)),
 		Commands: []*discordgo.ApplicationCommand{},
 	}
