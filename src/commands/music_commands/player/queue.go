@@ -7,23 +7,25 @@ import (
 )
 
 type Queue struct {
-	Mutex     *sync.Mutex
+	sync.Mutex
 	TrackList []*extractors.TrackInfo
 }
 
 func NewQueue() *Queue {
-	return &Queue{&sync.Mutex{}, make([]*extractors.TrackInfo, 0)}
+	return &Queue{
+		TrackList: make([]*extractors.TrackInfo, 0),
+	}
 }
 
 func (q *Queue) Enqueue(t *extractors.TrackInfo) {
-	q.Mutex.Lock()
-	defer q.Mutex.Unlock()
+	q.Lock()
+	defer q.Unlock()
 	q.TrackList = append(q.TrackList, t)
 }
 
 func (q *Queue) Dequeue() *extractors.TrackInfo {
-	q.Mutex.Lock()
-	defer q.Mutex.Unlock()
+	q.Lock()
+	defer q.Unlock()
 	if len(q.TrackList) > 0 {
 		x := q.TrackList[0]
 		q.TrackList = q.TrackList[1:]
@@ -33,8 +35,8 @@ func (q *Queue) Dequeue() *extractors.TrackInfo {
 }
 
 func (q *Queue) Pop(x int) *extractors.TrackInfo {
-	q.Mutex.Lock()
-	defer q.Mutex.Unlock()
+	q.Lock()
+	defer q.Unlock()
 	if len(q.TrackList) > 0 {
 		track := q.TrackList[x]
 		q.TrackList = append(q.TrackList[:x], q.TrackList[x+1:]...)
@@ -44,25 +46,24 @@ func (q *Queue) Pop(x int) *extractors.TrackInfo {
 }
 
 func (q *Queue) Peek(x int) *extractors.TrackInfo {
-	q.Mutex.Lock()
-	defer q.Mutex.Unlock()
+	q.Lock()
+	defer q.Unlock()
 	if len(q.TrackList) > 0 && x < len(q.TrackList) {
 		track := q.TrackList[x]
-		q.Mutex.Unlock()
 		return track
 	}
 	return nil
 }
 
 func (q *Queue) GetTrackList() []*extractors.TrackInfo {
-	q.Mutex.Lock()
-	defer q.Mutex.Unlock()
+	q.Lock()
+	defer q.Unlock()
 	return q.TrackList
 }
 
 func (q *Queue) GetTrackListSlice(x int, y int) []*extractors.TrackInfo {
-	q.Mutex.Lock()
-	defer q.Mutex.Unlock()
+	q.Lock()
+	defer q.Unlock()
 
 	if y > len(q.TrackList) {
 		y = len(q.TrackList)
@@ -76,19 +77,19 @@ func (q *Queue) GetTrackListSlice(x int, y int) []*extractors.TrackInfo {
 }
 
 func (q *Queue) Length() int {
-	q.Mutex.Lock()
-	defer q.Mutex.Unlock()
+	q.Lock()
+	defer q.Unlock()
 	return len(q.TrackList)
 }
 
 func (q *Queue) IsEmpty() bool {
-	q.Mutex.Lock()
-	defer q.Mutex.Unlock()
+	q.Lock()
+	defer q.Unlock()
 	return len(q.TrackList) == 0
 }
 
 func (q *Queue) Clear() {
-	q.Mutex.Lock()
-	defer q.Mutex.Unlock()
+	q.Lock()
+	defer q.Unlock()
 	q.TrackList = make([]*extractors.TrackInfo, 0)
 }
