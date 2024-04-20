@@ -9,6 +9,7 @@ require (
 	github.com/bwmarrin/discordgo v0.28.1
 	github.com/dop251/goja v0.0.0-20230304130813-e2f543bf4b4c
 	github.com/pkg/errors v0.9.1
+	github.com/tidwall/gjson v1.17.1
 	gopkg.in/ini.v1 v1.67.0
 )
 
@@ -21,6 +22,8 @@ require (
 	github.com/jonas747/ogg v0.0.0-20161220051205-b4f6f4cf3757 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/stretchr/testify v1.9.0 // indirect
+	github.com/tidwall/match v1.1.1 // indirect
+	github.com/tidwall/pretty v1.2.1 // indirect
 	golang.org/x/crypto v0.21.0 // indirect
 	golang.org/x/net v0.22.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
