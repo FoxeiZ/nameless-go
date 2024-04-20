@@ -13,4 +13,7 @@ func Add(commandHandlers *commands.CommandType) {
 
 	commandHandlers.Handlers["play"] = Play
 	commandHandlers.Commands = append(commandHandlers.Commands, PlayCommand)
+
+	commandHandlers.Handlers["skip"] = Skip
+	commandHandlers.Commands = append(commandHandlers.Commands, SkipCommand)
 }

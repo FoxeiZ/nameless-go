@@ -175,7 +175,7 @@ func search(e *extractor, query string, param SearchParam, continuation ...strin
 		thumbnail := search.Get("thumbnail.thumbnails.0.url").String()
 
 		searchResult = append(searchResult, &extractors.TrackInfo{
-			Site:         "youtube",
+			Site:         "ytsearch",
 			URL:          url,
 			Title:        title,
 			Artist:       author,

@@ -125,6 +125,12 @@ func (p *Player) AddTrack(track *extractors.TrackInfo) {
 	}
 }
 
+func (p *Player) AddTracks(tracks []*extractors.TrackInfo) {
+	for _, track := range tracks {
+		p.AddTrack(track)
+	}
+}
+
 func (p *Player) RemoveTrack(index int) error {
 	p.Lock()
 	defer p.Unlock()
@@ -172,7 +178,7 @@ func (p *Player) Play() {
 	}
 
 	p.isPlaying = true
-	p.play(p.CurrentTrack)
+	go p.play(p.CurrentTrack)
 }
 
 func (p *Player) Pause() {
@@ -189,7 +195,6 @@ func (p *Player) Pause() {
 
 func (p *Player) Stop() {
 	p.Lock()
-	defer p.Unlock()
 
 	if p.currentStreamingSession == nil && p.currentEncodingSession == nil {
 		return
@@ -197,16 +202,22 @@ func (p *Player) Stop() {
 
 	p.isPlaying = false
 	p.currentEncodingSession.Stop()
+	p.currentStreamingSession.FinishNow()
+	p.Unlock()
 	p.cleanup()
 }
 
 func (p *Player) Next() *extractors.TrackInfo {
+	println("call Next!!")
+	p.Lock()
+
 	p.CurrentTrack = p.queue.Dequeue()
 	if p.CurrentTrack == nil {
 		p.isPlaying = false
 		return nil
 	}
 
+	p.Unlock()
 	p.Play()
 	return p.CurrentTrack
 }

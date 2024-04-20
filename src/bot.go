@@ -54,6 +54,9 @@ func init() {
 	}
 
 	botSession.AddHandler(func(session *discordgo.Session, interaction *discordgo.InteractionCreate) {
+		if interaction.Type != discordgo.InteractionApplicationCommand {
+			return
+		}
 		if c, ok := botCommand.Handlers[interaction.ApplicationCommandData().Name]; ok {
 			session.InteractionRespond(interaction.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
