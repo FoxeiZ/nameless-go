@@ -21,14 +21,15 @@ func main() {
 	bot.Close()
 }
 
-//	func main() {
-//		extractors.Extract(
-//			"https://www.youtube.com/watch?v=B0dNXxLbh8s",
-//			extractors.Options{},
-//		)
-//	}
 // func main() {
-// 	u, err := url.Parse("https://youtu.be/bGzGvY85kBU?si=yJV9iITO6iIPToob")
+// 	extractors.Extract(
+// 		"https://www.youtube.com/watch?v=3cSY73RzWhE",
+// 		extractors.Options{},
+// 	)
+// }
+
+// func main() {
+// 	u, err := url.Parse("awdadwadawd.cpm")
 // 	if err != nil {
 // 		panic(err)
 // 	}

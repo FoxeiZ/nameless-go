@@ -14,22 +14,24 @@ func Register(site string, e Extractor) {
 	extractorMap[site] = e
 }
 
+func GetExtractor(site string) Extractor {
+	rwMutex.RLock()
+	defer rwMutex.RUnlock()
+	return extractorMap[site]
+}
+
 func Extract(Url string, option Options) ([]*TrackInfo, error) {
 	u, err := url.Parse(Url)
 	if err != nil {
 		return nil, err
 	}
 
+	if u.Scheme == "" {
+		extractor := GetExtractor(option.SearchSite)
+		return extractor.Search(Url)
+	}
+
 	domain := Domain(u.Host)
-	extractor := extractorMap[domain]
-	if extractor == nil {
-		extractor = extractorMap[""]
-	}
-
-	videos, err := extractor.Extract(Url, option)
-	if err != nil {
-		return nil, err
-	}
-
-	return videos, nil
+	extractor := GetExtractor(domain)
+	return extractor.Extract(Url, option)
 }

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -13,6 +14,7 @@ import (
 	"time"
 
 	"github.com/foxeiz/namelessgo/src/extractors"
+	"github.com/tidwall/gjson"
 )
 
 var httpSession = &http.Client{}
@@ -23,6 +25,7 @@ func init() {
 	e := New()
 	extractors.Register("youtube", e)
 	extractors.Register("youtu", e)
+	extractors.Register("", e)
 }
 
 func New() extractors.Extractor {
@@ -105,8 +108,8 @@ func doRequest(endpoint string, body []byte) (*http.Response, error) {
 	return resp, nil
 }
 
-func player(videoId string) (*playerResponse, error) {
-	playerBody := playerBody{
+func player(videoId string) (*PlayerResponse, error) {
+	playerBody := PlayerBodyStruct{
 		Context:      DefaultContext,
 		VideoId:      videoId,
 		RacyCheck:    true,
@@ -114,18 +117,88 @@ func player(videoId string) (*playerResponse, error) {
 	}
 
 	playerBodyJson, _ := json.Marshal(playerBody)
-	resp, err := doRequest("player", playerBodyJson)
+	resp, err := doRequest(EndpointPlayer, playerBodyJson)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	playerResp := playerResponse{}
+	playerResp := PlayerResponse{}
 	if err := json.NewDecoder(resp.Body).Decode(&playerResp); err != nil {
 		return nil, err
 	}
 
 	return &playerResp, nil
+}
+
+func search(e *extractor, query string, param SearchParam, continuation ...string) ([]*extractors.TrackInfo, error) {
+	searchBody := SearchBodyStruct{
+		Context: DefaultContext,
+		Query:   query,
+		Params:  param,
+	}
+
+	if len(continuation) > 0 {
+		searchBody.Continuation = continuation[0]
+	}
+
+	searchBodyJson, _ := json.Marshal(searchBody)
+	resp, err := doRequest(EndpointSearch, searchBodyJson)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	readBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	gjsonParse := gjson.GetBytes(
+		readBody,
+		"contents.twoColumnSearchResultsRenderer"+
+			".primaryContents.sectionListRenderer.contents"+
+			".0.itemSectionRenderer.contents.#.videoRenderer",
+	)
+	if !gjsonParse.Exists() {
+		return nil, errors.New("invalid response")
+	}
+
+	searchResult := []*extractors.TrackInfo{}
+	for _, search := range gjsonParse.Array() {
+		videoId := search.Get("videoId").String()
+		url := fmt.Sprintf("https://www.youtube.com/watch?v=%s", videoId)
+		title := search.Get("title.runs.0.text").String()
+		author := search.Get("ownerText.runs.0.text").String()
+		authorUrl := search.Get("ownerText.runs.0.navigationEndpoint.canonicalBaseUrl").String()
+		length := search.Get("lengthText.simpleText").String()
+		thumbnail := search.Get("thumbnail.thumbnails.0.url").String()
+
+		searchResult = append(searchResult, &extractors.TrackInfo{
+			Site:         "youtube",
+			URL:          url,
+			Title:        title,
+			Artist:       author,
+			Duration:     time.Duration(len(length)) * time.Second,
+			ThumbnailURL: &thumbnail,
+			StreamData: &extractors.StreamData{
+				URL: fmt.Sprintf("https://www.youtube.com/watch?v=%s", videoId),
+			},
+			AuthorInfo: &extractors.AuthorInfo{
+				Name: author,
+				URL:  authorUrl,
+			},
+
+			IsParse:   false,
+			Extractor: e,
+		})
+	}
+
+	return searchResult, nil
+}
+
+func (e *extractor) Search(query string) ([]*extractors.TrackInfo, error) {
+	return search(e, query, DefaultSearchParam)
 }
 
 func (e *extractor) Extract(url string, option extractors.Options) ([]*extractors.TrackInfo, error) {
@@ -169,8 +242,8 @@ func (e *extractor) Extract(url string, option extractors.Options) ([]*extractor
 				URL:  fmt.Sprintf("https://www.youtube.com/channel/%s", pl.VideoDetails.ChannelID),
 			},
 
+			IsParse:   false,
 			Extractor: e,
-			Err:       nil,
 		})
 		return ret, nil
 

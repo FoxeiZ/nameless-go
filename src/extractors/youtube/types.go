@@ -31,7 +31,7 @@ import (
 
 const BaseURL = "https://www.youtube.com/youtubei/v1/%s?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
 
-type Endpoint string
+type Endpoint = string
 
 const (
 	EndpointBrowse                    Endpoint = "browse"
@@ -65,11 +65,29 @@ var DefaultContext = &Context{
 	},
 }
 
-type playerBody struct {
+type PlayerBodyStruct struct {
 	Context      *Context `json:"context"`
 	VideoId      string   `json:"videoId"`
 	RacyCheck    bool     `json:"racyCheckOk"`
 	ContentCheck bool     `json:"contentCheckOk"`
+}
+
+type SearchParam = string
+
+const (
+	SearchParamVideo    SearchParam = "EgIQAQ%3D%3D"
+	SearchParamChannel  SearchParam = "EgIQAg%3D%3D"
+	SearchParamPlaylist SearchParam = "EgIQAw%3D%3D"
+	SearchParamFilm     SearchParam = "EgIQBA%3D%3D"
+)
+
+var DefaultSearchParam = SearchParamVideo
+
+type SearchBodyStruct struct {
+	Context      *Context    `json:"context"`
+	Query        string      `json:"query"`
+	Params       SearchParam `json:"params"`
+	Continuation string      `json:"continuation"`
 }
 
 // ----- the below is copied from https://github.com/kkdai/youtube/blob/master/response_data.go
@@ -113,7 +131,7 @@ type Format struct {
 	} `json:"indexRange"`
 }
 
-type playerResponse struct { // trim down part that we need
+type PlayerResponse struct { // trim down part that we need
 	StreamingData struct {
 		ExpiresInSeconds string   `json:"expiresInSeconds"`
 		Formats          []Format `json:"formats"`
@@ -157,7 +175,7 @@ type playerResponse struct { // trim down part that we need
 
 // ----- end of copied code
 
-func (p *playerResponse) GetBestThumbnail() *Thumbnail {
+func (p *PlayerResponse) GetBestThumbnail() *Thumbnail {
 	var maxHeight uint = 0
 	var thumbnail *Thumbnail
 
@@ -171,7 +189,7 @@ func (p *playerResponse) GetBestThumbnail() *Thumbnail {
 	return thumbnail
 }
 
-func (p *playerResponse) GetBestAudio() (*extractors.StreamData, error) {
+func (p *PlayerResponse) GetBestAudio() (*extractors.StreamData, error) {
 	var format Format
 	var maxBitrate int = 0
 
