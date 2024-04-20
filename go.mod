@@ -5,7 +5,7 @@ go 1.21
 toolchain go1.21.8
 
 require (
-	github.com/FoxeiZ/dca v0.0.0-20240415011324-cfcfe6c8a70d
+	github.com/FoxeiZ/dca v0.0.0-20240420115706-e4859a963796
 	github.com/bwmarrin/discordgo v0.28.1
 	github.com/dop251/goja v0.0.0-20230304130813-e2f543bf4b4c
 	github.com/pkg/errors v0.9.1

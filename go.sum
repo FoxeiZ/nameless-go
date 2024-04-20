@@ -1,5 +1,7 @@
 github.com/FoxeiZ/dca v0.0.0-20240415011324-cfcfe6c8a70d h1:OY5jHFqzzyXKtNIU5G0uqqeFceTvYby4y+6zNS9Anrk=
 github.com/FoxeiZ/dca v0.0.0-20240415011324-cfcfe6c8a70d/go.mod h1:+hXF1jadw9rDuEoyhAIMWH3acfzvPcqVQG6kKGqNrFY=
+github.com/FoxeiZ/dca v0.0.0-20240420115706-e4859a963796 h1:H8+3uNS2PWDRABx7QixGgJY+sa+GeUpwSN9QNFKiK/Y=
+github.com/FoxeiZ/dca v0.0.0-20240420115706-e4859a963796/go.mod h1:+hXF1jadw9rDuEoyhAIMWH3acfzvPcqVQG6kKGqNrFY=
 github.com/bwmarrin/discordgo v0.28.1 h1:gXsuo2GBO7NbR6uqmrrBDplPUx2T3nzu775q/Rd1aG4=
 github.com/bwmarrin/discordgo v0.28.1/go.mod h1:NJZpH+1AfhIcyQsPeuBKsUtYrRnjkyu0kIVMCHkZtRY=
 github.com/chzyer/logex v1.2.0/go.mod h1:9+9sk7u7pGNWYMkh0hdiL++6OeibzJccyQU4p4MedaY=
